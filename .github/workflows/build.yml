@@ -25,13 +25,22 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew || true
 
-      - name: Build JAR with Gradle
+      - name: Build JAR with Gradle (retry on 429)
         run: |
           if [ -f "./gradlew" ]; then
-            ./gradlew jar --no-daemon
+            CMD="./gradlew jar --no-daemon"
           else
-            gradle jar --no-daemon
+            CMD="gradle jar --no-daemon"
           fi
+
+          for attempt in 1 2 3 4; do
+            echo "Build attempt $attempt..."
+            if $CMD; then
+              exit 0
+            fi
+            sleep $((attempt * 5))
+          done
+          exit 1
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4
