@@ -38,12 +38,9 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
     private final MiniMessage mm = MiniMessage.miniMessage();
     private NamespacedKey orbitalKey;
 
-    // Кулдауны: UUID игрока -> (Тип орбиталки -> время окончания в мс)
     private final Map<UUID, Map<OrbitalType, Long>> cooldowns = new HashMap<>();
-    // Временные сущности (волки, TNT, черепа), которые нужно гарантированно убирать
     private final Set<UUID> temporaryEntities = new HashSet<>();
 
-    // Активные задачи и падающие TNT в одном централизованном списке
     private final List<ActiveStrike> activeStrikes = new ArrayList<>();
     private final List<FallingNukeTnt> fallingNukeTnts = new ArrayList<>();
     private BukkitTask engineTask;
@@ -202,8 +199,6 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
         }, 2L, 2L);
     }
 
-    // --- ПРЕДМЕТЫ И КРАФТЫ ---
-
     public ItemStack createOrbitalItem(OrbitalType type) {
         ItemStack item = new ItemStack(type.material);
         ItemMeta meta = item.getItemMeta();
@@ -298,8 +293,6 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
         }
     }
 
-    // --- АКТИВАЦИЯ ПО ПКМ ---
-
     @EventHandler(priority = EventPriority.HIGH)
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() != EquipmentSlot.HAND) return;
@@ -338,7 +331,6 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
         }
     }
 
-    // --- 1. WITHER CANNON ---
     private void startWitherCannon(Player owner, Location target) {
         World world = target.getWorld();
         Location skyCenter = target.clone().add(0, 22, 0);
@@ -384,7 +376,6 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
         });
     }
 
-    // --- 2. NUKE ---
     private void startNuke(Player owner, Location target) {
         World world = target.getWorld();
         Location skyCenter = target.clone().add(0, 22, 0);
@@ -446,7 +437,6 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
         });
     }
 
-    // --- 3. STAB ---
     private void startStab(Player owner, Location target) {
         World world = target.getWorld();
         owner.sendActionBar(mm.deserialize("<aqua><bold>🗡 Stab</bold> <gray>пробивает цель сверху!"));
@@ -487,11 +477,10 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
         });
     }
 
-    // --- 4. WOLF ---
     private void startWolf(Player owner, Location target) {
         World world = target.getWorld();
         owner.sendActionBar(mm.deserialize("<gold><bold>🐺 Wolf</bold> <gray>стая спущена на охоту!"));
-        world.playSound(target, Sound.ENTITY_WOLF_HOWL, 1.5f, 0.9f);
+        world.playSound(target, Sound.ENTITY_WOLF_GROWL, 1.5f, 0.9f);
         drawCircle(target, 2.5, Particle.CLOUD, 20);
 
         LivingEntity prey = target.getNearbyLivingEntities(14.0).stream()
@@ -509,8 +498,8 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
                 w.setCollarColor(DyeColor.RED);
                 w.customName(mm.deserialize("<gold><bold>Орбитальный волк</bold>"));
                 w.setCustomNameVisible(false);
-                if (w.getAttribute(Attribute.GENERIC_MAX_HEALTH) != null) {
-                    w.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(30.0);
+                if (w.getAttribute(Attribute.MAX_HEALTH) != null) {
+                    w.getAttribute(Attribute.MAX_HEALTH).setBaseValue(30.0);
                     w.setHealth(30.0);
                 }
                 w.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 450, 1));
@@ -557,8 +546,6 @@ public final class ChaosOrbitals extends JavaPlugin implements Listener, Command
     public void onSkullExplode(EntityExplodeEvent event) {
         temporaryEntities.remove(event.getEntity().getUniqueId());
     }
-
-    // --- АДМИН-КОМАНДА ВЫДАЧИ ---
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
