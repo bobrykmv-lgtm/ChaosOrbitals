@@ -12,11 +12,15 @@ java {
 }
 
 repositories {
-    mavenCentral()
     maven {
         name = 'purpurmc'
         url = 'https://repo.purpurmc.org/snapshots'
     }
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    mavenCentral()
 }
 
 dependencies {
