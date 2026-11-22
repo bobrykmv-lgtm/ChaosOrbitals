@@ -1,0 +1,11 @@
+name: ChaosOrbitals
+version: ${version}
+main: cloud.enderman.chaossmp.orbitals.ChaosOrbitals
+api-version: "1.21"
+author: ChaosSMP
+description: Оптимизированные орбиталки (Wither Cannon, Nuke, Stab, Wolf) с крафтами для ChaosSMP
+commands:
+  orbitals:
+    description: Выдать орбиталку игроку
+    aliases: [orb, co-orb]
+    permission: chaosorbitals.admin
